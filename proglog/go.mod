@@ -1,4 +1,4 @@
-module github.com/wainola/proglog
+module github.com/wainola/proglog/proglog
 
 go 1.15
 
