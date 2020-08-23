@@ -30,4 +30,16 @@ func (s *grpcServer) Produce(ctx context.Context, req *api.ProduceRequest) (*api
 	if err != nil {
 		return nil, err
 	}
+
+	return &api.ProduceResponse{Offset: offset}, nil
+}
+
+func (s *grpcServer) Consume(ctx context.Context, req *api.ConsumeRequest) (*api.ConsumeResponse, error) {
+	record, err := s.ComitLog.Read(req.Offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.ConsumeResponse{Record: record}, nil
 }
