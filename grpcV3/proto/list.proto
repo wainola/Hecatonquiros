@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package list;
+
+service ListService {
+    rpc GetList (GetListReq) returns (ListResp) {}
+}
+
+message List {
+    string id = 1;
+    string content = 2;
+}
+
+message GetListReq {
+    string list_id = 1;
+}
+
+message ListResp {
+    repeated List items = 1;
+}
