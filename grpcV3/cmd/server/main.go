@@ -16,11 +16,14 @@ import (
 type listServer struct{}
 
 func (l *listServer) GetList(ctx context.Context, req *list.GetListReq) (*list.ListResp, error) {
+	listItems := []*list.List{
+		&list.List{Id: "123", Content: "Content number 1"},
+		&list.List{Id: "111", Content: "Content number 2"},
+		&list.List{Id: "456", Content: "Content number 3"},
+	}
 	fmt.Println("req:", req.GetListId())
 
-	listItem := list.List{Id: "123", Content: "New Content"}
-
-	return &list.ListResp{Items: []*list.List{&listItem}}, nil
+	return &list.ListResp{Items: listItems}, nil
 }
 
 func main() {
