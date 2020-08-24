@@ -43,9 +43,19 @@ func printList(client list.ListServiceClient) {
 
 func getItemHandler(client list.ListServiceClient) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := strings.Split(r.URL.Path, "/")[1]
+		id := strings.Split(r.URL.Path, "/")
 
-		getOneListItem(client, id)
+		var idValues []string
+		for _, value := range id {
+			fmt.Println("value::", value)
+			if strings.Contains(value, "") {
+				idValues = append(idValues, value)
+			}
+		}
+
+		fmt.Println("id array:", idValues)
+
+		// getOneListItem(client, id)
 
 	}
 }
