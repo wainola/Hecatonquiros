@@ -4,6 +4,7 @@ package list;
 
 service ListService {
     rpc GetList (GetListReq) returns (ListResp) {}
+    rpc GetOneListItem (GetOneListReq) returns (ListItem);
 }
 
 message List {
@@ -17,4 +18,12 @@ message GetListReq {
 
 message ListResp {
     repeated List items = 1;
+}
+
+message GetOneListReq {
+    string list_id = 1;
+}
+
+message ListItem {
+    List item = 1;
 }
