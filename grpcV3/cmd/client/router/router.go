@@ -48,14 +48,16 @@ func getItemHandler(client list.ListServiceClient) func(w http.ResponseWriter, r
 		var idValues []string
 		for _, value := range id {
 			fmt.Println("value::", value)
-			if strings.Contains(value, "") {
+			if len(value) != 0 {
 				idValues = append(idValues, value)
 			}
 		}
 
-		fmt.Println("id array:", idValues)
+		var idToUse string = idValues[1]
 
-		// getOneListItem(client, id)
+		fmt.Println("id array:", idToUse)
+
+		getOneListItem(client, idToUse)
 
 	}
 }

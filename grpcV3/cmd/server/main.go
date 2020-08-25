@@ -25,13 +25,22 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 	&list.List{Id: "456", Content: "Content number 3"},
 }}
 
+func getOneItemList(id string) (*list.List, error) {
+	fmt.Println("params:", id, ItemsCollection.Items)
+	for _, value := range ItemsCollection.Items {
+		fmt.Println(id == value.Id, id, value.Id)
+	}
+	return &list.List{}, nil
+}
+
 func (l *listServer) GetList(ctx context.Context, req *list.GetListReq) (*list.ListResp, error) {
 
 	return &list.ListResp{Items: ItemsCollection.Items}, nil
 }
 
 func (l *listServer) GetOneListItem(ctx context.Context, req *list.GetOneListReq) (*list.ListItem, error) {
-	fmt.Println("ID::", req.ListId)
+
+	getOneItemList(req.ListId)
 
 	return &list.ListItem{}, nil
 }
