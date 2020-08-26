@@ -26,11 +26,14 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 }}
 
 func getOneItemList(id string) (*list.List, error) {
-	fmt.Println("params:", id, ItemsCollection.Items)
+	var itemToReturn map[string]string = make(map[string]string)
 	for _, value := range ItemsCollection.Items {
-		fmt.Println(id == value.Id, id, value.Id)
+		if id == value.Id {
+			itemToReturn["id"] = value.Id
+			itemToReturn["content"] = value.Content
+		}
 	}
-	return &list.List{}, nil
+	return &list.List{Id: itemToReturn["id"], Content: itemToReturn["content"]}, nil
 }
 
 func (l *listServer) GetList(ctx context.Context, req *list.GetListReq) (*list.ListResp, error) {
@@ -40,9 +43,17 @@ func (l *listServer) GetList(ctx context.Context, req *list.GetListReq) (*list.L
 
 func (l *listServer) GetOneListItem(ctx context.Context, req *list.GetOneListReq) (*list.ListItem, error) {
 
-	getOneItemList(req.ListId)
+	item, err := getOneItemList(req.ListId)
 
-	return &list.ListItem{}, nil
+	if err != nil {
+		return nil, err
+	}
+
+	var itemToSend *list.ListItem = &list.ListItem{
+		Item: &list.List{Id: item.Id, Content: item.Content},
+	}
+
+	return itemToSend, nil
 }
 
 func main() {

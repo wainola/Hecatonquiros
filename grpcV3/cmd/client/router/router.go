@@ -63,7 +63,6 @@ func getItemHandler(client list.ListServiceClient) func(w http.ResponseWriter, r
 }
 
 func getOneListItem(client list.ListServiceClient, id string) {
-	log.Print("Getting one item")
 	ctx, cancel := provideCtx()
 
 	defer cancel()
