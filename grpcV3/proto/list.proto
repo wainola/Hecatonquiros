@@ -2,14 +2,18 @@ syntax = "proto3";
 
 package list;
 
+/* Service version 1
+*/
 service ListService {
     rpc GetList (GetListReq) returns (ListResp) {}
     rpc GetOneListItem (GetOneListReq) returns (ListItem);
+    rpc GetAllLists (RequestTrack) returns (stream ListResp);
 }
 
 message List {
     string id = 1;
     string content = 2;
+    string userId = 3;
 }
 
 message GetListReq {
@@ -26,4 +30,8 @@ message GetOneListReq {
 
 message ListItem {
     List item = 1;
+}
+
+message RequestTrack {
+    string id = 1;
 }
