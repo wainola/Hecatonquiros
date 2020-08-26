@@ -25,6 +25,15 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 	&list.List{Id: "456", Content: "Content number 3"},
 }}
 
+func (l *listServer) GetAllLists(req *list.RequestTrack, stream list.ListService_GetAllListsServer) error {
+	return nil
+}
+
+func (l *listServer) GetList(ctx context.Context, req *list.GetListReq) (*list.ListResp, error) {
+
+	return &list.ListResp{Items: ItemsCollection.Items}, nil
+}
+
 func getOneItemList(id string) (*list.List, error) {
 	var itemToReturn map[string]string = make(map[string]string)
 	for _, value := range ItemsCollection.Items {
@@ -34,11 +43,6 @@ func getOneItemList(id string) (*list.List, error) {
 		}
 	}
 	return &list.List{Id: itemToReturn["id"], Content: itemToReturn["content"]}, nil
-}
-
-func (l *listServer) GetList(ctx context.Context, req *list.GetListReq) (*list.ListResp, error) {
-
-	return &list.ListResp{Items: ItemsCollection.Items}, nil
 }
 
 func (l *listServer) GetOneListItem(ctx context.Context, req *list.GetOneListReq) (*list.ListItem, error) {
