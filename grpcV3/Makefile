@@ -6,3 +6,5 @@ docker:
 	docker-compose up -d
 docker-down:
 	docker-compose down
+tables:
+	go run ./cmd/server/db/main.go
