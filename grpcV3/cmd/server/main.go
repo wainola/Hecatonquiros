@@ -19,6 +19,7 @@ type ListItems struct {
 	Items []*list.List
 }
 
+// LIST COLLECTION FOR LEARNING PURPOSES
 var ItemsCollection ListItems = ListItems{Items: []*list.List{
 	&list.List{Id: "123", Content: "Content number 1"},
 	&list.List{Id: "111", Content: "Content number 2"},
