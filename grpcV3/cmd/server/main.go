@@ -6,6 +6,8 @@ import (
 	"log"
 	"net"
 
+	"github.com/gocql/gocql"
+
 	"google.golang.org/grpc/reflection"
 
 	list "github/wainola/proglog/grpcV3/proto"
@@ -13,7 +15,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-type listServer struct{}
+type listServer struct {
+	ClusterInstance *gocql.ClusterConfig
+}
 
 type ListItems struct {
 	Items []*list.List
@@ -27,6 +31,22 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 }}
 
 func (l *listServer) GetAllLists(req *list.RequestTrack, stream list.ListService_GetAllListsServer) error {
+	session, _ := l.ClusterInstance.CreateSession()
+	defer session.Close()
+
+	iter := session.Query("select id, content, userid from lists;").Iter()
+
+	var id gocql.UUID
+	var content string
+	var userId gocql.UUID
+
+	for iter.Scan(&id, &content, &userId) {
+		fmt.Printf("Data from cassandra: id: %s, content: %s, userId: %s\n", id, content, userId)
+	}
+
+	if err := iter.Close(); err != nil {
+		log.Fatal(err)
+	}
 	return nil
 }
 
@@ -62,6 +82,10 @@ func (l *listServer) GetOneListItem(ctx context.Context, req *list.GetOneListReq
 }
 
 func main() {
+	var cluster *gocql.ClusterConfig = gocql.NewCluster("127.0.0.1")
+	cluster.Keyspace = "grpcv3"
+	var dbInstance DB = DB{ClusterInstance: cluster}
+
 	listener, err := net.Listen("tcp", ":4040")
 
 	if err != nil {
@@ -69,7 +93,7 @@ func main() {
 	}
 
 	srv := grpc.NewServer()
-	list.RegisterListServiceServer(srv, &listServer{})
+	list.RegisterListServiceServer(srv, &listServer{ClusterInstance: dbInstance.ClusterInstance})
 	reflection.Register(srv)
 
 	fmt.Println("GRPC Server!")

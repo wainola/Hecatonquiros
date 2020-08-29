@@ -18,6 +18,7 @@ func BuildRouter(client list.ListServiceClient) http.Handler {
 
 	r.HandleFunc("/items", itemsHandler(client)).Methods("GET")
 	r.HandleFunc("/item/{id}", getItemHandler(client)).Methods("GET")
+	r.HandleFunc("/items/all", getAllItems(client)).Method("GET")
 
 	return r
 }
@@ -77,6 +78,12 @@ func getOneListItem(client list.ListServiceClient, id string) {
 
 	fmt.Println("List item", listItem)
 
+}
+
+func getAllItems(client list.ListServiceClient) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+	}
 }
 
 func provideCtx() (context.Context, context.CancelFunc) {
