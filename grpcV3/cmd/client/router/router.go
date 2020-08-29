@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -97,6 +98,8 @@ func getAllItems(client list.ListServiceClient) func(w http.ResponseWriter, r *h
 			log.Fatalf("%v.GetAllLists(_) = _, %v", client, err)
 		}
 
+		var lists []List = []List{}
+
 		for {
 			l, err := stream.Recv()
 
@@ -108,9 +111,18 @@ func getAllItems(client list.ListServiceClient) func(w http.ResponseWriter, r *h
 				log.Fatalf("%v.GetAllLists(_) = _, %v", client, err)
 			}
 
-			log.Println("GET ALL ITEMS =====>>")
-			log.Println(l)
+			for _, value := range l.Items {
+				lists = append(lists, List{
+					Id:      value.Id,
+					Content: value.Content,
+					UserId:  value.UserId,
+				})
+			}
 		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(lists)
 	}
 }
 
