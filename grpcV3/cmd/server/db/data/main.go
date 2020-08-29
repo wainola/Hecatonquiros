@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/gocql/gocql"
 )
 
 type Response struct {
@@ -13,7 +16,7 @@ type Response struct {
 
 type ResponseCollection []string
 
-func main() {
+func makeRequest() {
 	res, err := http.Get("https://api.kanye.rest")
 
 	if err != nil {
@@ -27,21 +30,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("r::", r)
+	cluster := gocql.NewCluster("127.0.0.1")
+	cluster.Keyspace = "grpcv3"
 
-	// ticker := time.NewTicker(time.Second)
-	// defer ticker.Stop()
+	session, _ := cluster.CreateSession()
 
-	// done := make(chan bool)
-	// go func(){
-	// 	time.Sleep(10 * time.Second)
-	// 	done <- true
-	// }()
+	defer session.Close()
 
-	// for {
-	// 	select {
-	// 	case <- done:
+	if err := session.Query("insert into lists (id, content, userid) values (?, ?, ?);", gocql.TimeUUID(), r.Quote, gocql.TimeUUID()).Exec(); err != nil {
+		log.Fatal("Error inserting data", err)
+	}
 
-	// 	}
-	// }
+	fmt.Printf("Success inserting quote: %s\n", r.Quote)
+}
+
+func main() {
+
+	for i := 1; i < 20; i++ {
+		time.Sleep(1 * time.Second)
+		makeRequest()
+	}
 }
