@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ func BuildRouter(client list.ListServiceClient) http.Handler {
 
 	r.HandleFunc("/items", itemsHandler(client)).Methods("GET")
 	r.HandleFunc("/item/{id}", getItemHandler(client)).Methods("GET")
-	r.HandleFunc("/items/all", getAllItems(client)).Method("GET")
+	r.HandleFunc("/items/all", getAllItems(client)).Methods("GET")
 
 	return r
 }
@@ -82,7 +83,34 @@ func getOneListItem(client list.ListServiceClient, id string) {
 
 func getAllItems(client list.ListServiceClient) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := provideCtx()
 
+		var trackId string = r.Header.Get("Track-id")
+
+		defer cancel()
+
+		requestTrack := &list.RequestTrack{Id: trackId}
+
+		stream, err := client.GetAllLists(ctx, requestTrack)
+
+		if err != nil {
+			log.Fatalf("%v.GetAllLists(_) = _, %v", client, err)
+		}
+
+		for {
+			l, err := stream.Recv()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatalf("%v.GetAllLists(_) = _, %v", client, err)
+			}
+
+			log.Println("GET ALL ITEMS =====>>")
+			log.Println(l)
+		}
 	}
 }
 

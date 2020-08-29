@@ -31,6 +31,7 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 }}
 
 func (l *listServer) GetAllLists(req *list.RequestTrack, stream list.ListService_GetAllListsServer) error {
+
 	session, _ := l.ClusterInstance.CreateSession()
 	defer session.Close()
 
@@ -40,13 +41,33 @@ func (l *listServer) GetAllLists(req *list.RequestTrack, stream list.ListService
 	var content string
 	var userId gocql.UUID
 
+	var lCollection []*list.List = []*list.List{}
+
 	for iter.Scan(&id, &content, &userId) {
-		fmt.Printf("Data from cassandra: id: %s, content: %s, userId: %s\n", id, content, userId)
+		lCollection = append(lCollection,
+			&list.List{
+				Id:      id.String(),
+				Content: content,
+				UserId:  userId.String(),
+			})
+	}
+
+	var collectionToSend ListItems = ListItems{
+		Items: lCollection,
+	}
+
+	if err := stream.Send(
+		&list.ListResp{
+			Items: collectionToSend.Items,
+		},
+	); err != nil {
+		return err
 	}
 
 	if err := iter.Close(); err != nil {
 		log.Fatal(err)
 	}
+
 	return nil
 }
 
