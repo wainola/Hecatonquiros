@@ -30,6 +30,12 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 	&list.List{Id: "456", Content: "Content number 3"},
 }}
 
+func (l *listServer) SetList(ctx context.Context, listItem *list.List) (*list.SetListsResponse, error) {
+	fmt.Println("List received:", listItem)
+
+	return &list.SetListsResponse{}, nil
+}
+
 func (l *listServer) GetAllLists(req *list.RequestTrack, stream list.ListService_GetAllListsServer) error {
 
 	session, _ := l.ClusterInstance.CreateSession()

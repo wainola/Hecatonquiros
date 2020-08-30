@@ -21,6 +21,7 @@ func BuildRouter(client list.ListServiceClient) http.Handler {
 	r.HandleFunc("/items", itemsHandler(client)).Methods("GET")
 	r.HandleFunc("/item/{id}", getItemHandler(client)).Methods("GET")
 	r.HandleFunc("/items/all", getAllItems(client)).Methods("GET")
+	r.HandleFunc("/item", setItem(client)).Methods("POST")
 
 	return r
 }
@@ -123,6 +124,38 @@ func getAllItems(client list.ListServiceClient) func(w http.ResponseWriter, r *h
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(lists)
+	}
+}
+
+type SetItem struct {
+	Id      string
+	Content string
+	userId  string
+}
+
+func setItem(client list.ListServiceClient) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// var s SetItem = SetItem{}
+		var l list.List = list.List{}
+		err := json.NewDecoder(r.Body).Decode(&l)
+
+		if err != nil {
+			log.Fatalf("Problems to parse body %v", err)
+		}
+
+		ctx, cancel := provideCtx()
+
+		defer cancel()
+
+		postResponse, err2 := client.SetList(ctx, &l)
+
+		if err2 != nil {
+			log.Fatalf("Error on creating a list item %v", err2)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Println("postResponse:", postResponse)
 	}
 }
 

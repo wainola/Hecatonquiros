@@ -8,6 +8,7 @@ service ListService {
     rpc GetList (GetListReq) returns (ListResp) {}
     rpc GetOneListItem (GetOneListReq) returns (ListItem);
     rpc GetAllLists (RequestTrack) returns (stream ListResp);
+    rpc SetList (List) returns (SetListsResponse);
 }
 
 message List {
@@ -34,4 +35,9 @@ message ListItem {
 
 message RequestTrack {
     string id = 1;
+}
+
+message SetListsResponse {
+    string message = 1;
+    int32 statusCode = 2;
 }
