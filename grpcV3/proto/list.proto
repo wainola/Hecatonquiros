@@ -9,6 +9,7 @@ service ListService {
     rpc GetOneListItem (GetOneListReq) returns (ListItem);
     rpc GetAllLists (RequestTrack) returns (stream ListResp);
     rpc SetList (List) returns (SetListsResponse);
+    rpc RemoveItem (ListId) returns (RemoveListResponse);
 }
 
 message List {
@@ -38,6 +39,15 @@ message RequestTrack {
 }
 
 message SetListsResponse {
+    string message = 1;
+    int32 statusCode = 2;
+}
+
+message ListId {
+    string id = 1;
+}
+
+message RemoveListResponse {
     string message = 1;
     int32 statusCode = 2;
 }

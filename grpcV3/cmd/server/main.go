@@ -31,6 +31,22 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 	&list.List{Id: "456", Content: "Content number 3"},
 }}
 
+func (l *listServer) RemoveItem(ctx context.Context, listId *list.ListId) (*list.RemoveListResponse, error) {
+
+	session, _ := l.ClusterInstance.CreateSession()
+
+	defer session.Close()
+
+	if err := session.Query("delete from lists where id=?", listId.Id).Exec(); err != nil {
+		return nil, err
+	}
+
+	return &list.RemoveListResponse{
+		Message:    fmt.Sprintf("Item %s removed successfully", listId.Id),
+		StatusCode: http.StatusOK,
+	}, nil
+}
+
 func (l *listServer) SetList(ctx context.Context, listItem *list.List) (*list.SetListsResponse, error) {
 	session, _ := l.ClusterInstance.CreateSession()
 	defer session.Close()

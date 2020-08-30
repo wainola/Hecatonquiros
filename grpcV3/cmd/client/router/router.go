@@ -22,6 +22,7 @@ func BuildRouter(client list.ListServiceClient) http.Handler {
 	r.HandleFunc("/item/{id}", getItemHandler(client)).Methods("GET")
 	r.HandleFunc("/items/all", getAllItems(client)).Methods("GET")
 	r.HandleFunc("/item", setItem(client)).Methods("POST")
+	r.HandleFunc("/item/{id}", removeItem(client)).Methods("DELETE")
 
 	return r
 }
@@ -58,8 +59,6 @@ func getItemHandler(client list.ListServiceClient) func(w http.ResponseWriter, r
 		}
 
 		var idToUse string = idValues[1]
-
-		fmt.Println("id array:", idToUse)
 
 		getOneListItem(client, idToUse)
 
@@ -157,6 +156,44 @@ func setItem(client list.ListServiceClient) func(w http.ResponseWriter, r *http.
 		json.NewEncoder(w).Encode(&Response{
 			Message:    postResponse.Message,
 			StatusCode: postResponse.StatusCode,
+		})
+	}
+}
+
+func removeItem(client list.ListServiceClient) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var idList list.ListId = list.ListId{}
+
+		id := strings.Split(r.URL.Path, "/")
+
+		var idValues []string
+		for _, value := range id {
+			if len(value) != 0 {
+				idValues = append(idValues, value)
+			}
+		}
+
+		var idToUse string = idValues[1]
+
+		idList.Id = idToUse
+
+		ctx, cancel := provideCtx()
+
+		defer cancel()
+
+		removeResponse, err := client.RemoveItem(ctx, &idList)
+
+		if err != nil {
+			log.Fatalf("Error on removing a list item %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(&Response{
+			Message:    removeResponse.Message,
+			StatusCode: removeResponse.StatusCode,
 		})
 	}
 }
