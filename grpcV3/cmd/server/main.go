@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 
 	"github.com/gocql/gocql"
 
@@ -31,9 +32,17 @@ var ItemsCollection ListItems = ListItems{Items: []*list.List{
 }}
 
 func (l *listServer) SetList(ctx context.Context, listItem *list.List) (*list.SetListsResponse, error) {
-	fmt.Println("List received:", listItem)
+	session, _ := l.ClusterInstance.CreateSession()
+	defer session.Close()
 
-	return &list.SetListsResponse{}, nil
+	if err := session.Query("insert into lists (id, content, userid) values (?, ?,?);", listItem.Id, listItem.Content, listItem.UserId).Exec(); err != nil {
+		return nil, err
+	}
+
+	return &list.SetListsResponse{
+		Message:    "Item list created!",
+		StatusCode: http.StatusCreated,
+	}, nil
 }
 
 func (l *listServer) GetAllLists(req *list.RequestTrack, stream list.ListService_GetAllListsServer) error {

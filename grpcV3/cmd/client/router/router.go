@@ -135,7 +135,6 @@ type SetItem struct {
 
 func setItem(client list.ListServiceClient) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// var s SetItem = SetItem{}
 		var l list.List = list.List{}
 		err := json.NewDecoder(r.Body).Decode(&l)
 
@@ -155,7 +154,10 @@ func setItem(client list.ListServiceClient) func(w http.ResponseWriter, r *http.
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		fmt.Println("postResponse:", postResponse)
+		json.NewEncoder(w).Encode(&Response{
+			Message:    postResponse.Message,
+			StatusCode: postResponse.StatusCode,
+		})
 	}
 }
 
